@@ -36,7 +36,7 @@ IFS=$'\n\t'
 
 workdir='scripts'
 
-if $debug; then    echo -e "continue: \t $continue"
+if $debug; then
     echo -e "year: \t\t $year"
     echo -e "month: \t\t $month"
  

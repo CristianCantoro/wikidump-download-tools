@@ -11,7 +11,7 @@ Usage: azure-copy.sh [options] <dir>
 
       <dir>                Directory to upload.
       -c, --continue       Continue the previous download.
-      -d, --debug		   Debug mode (incompatible with --quiet).
+      -d, --debug          Debug mode (incompatible with --quiet).
       -n, --dry-run        Do not upload files or create containers.
       -q, --quiet          Suppress output (incompatible with --debug).
       -h, --help           Show this help message and exits.
@@ -39,70 +39,80 @@ containsElement () {
 
 echoq() { echo "$@"; }
 if $quiet; then
-	echoq() { true; }
+    echoq() { true; }
 fi
 
 export AZURE_STORAGE_ACCOUNT='pagecountsstorage'
 export AZURE_STORAGE_ACCESS_KEY='8GcUp2eAayDFkapchf0LY8IKsBVDTbGZHo0n7xjrV0AOuuNTdIl51nBuoA4SH/2L2w9SxdsBGZsQZZhk8UEoVw=='
 
 if $quiet && $debug; then
-	(>&2 echo "Error: options --debug (-d) and --quiet (-q) are incompatible.")
-	(>&2 echo "See help (-h, --help) for more info")
-	exit 1
+    (>&2 echo "Error: options --debug (-d) and --quiet (-q) are incompatible.")
+    (>&2 echo "See help (-h, --help) for more info")
+    exit 1
 fi
 
-container_name="$(echo ${dir} | awk -F'/' '{print $2}' | tr -d '-')"
+container_name="$(echo ${dir} | awk -F'/' '{print $(NF-1)}' | tr -d '-')"
 logfile="upload.${container_name}.txt"
 
+if $debug; then
+    echo -e "[DEBUG] container_name: \t $container_name"
+    echo -e "[DEBUG] logfile:        \t $logfile"
+fi
+
+
 if $continue; then
-	echoq "Container already created... continuing"
+    echoq "Container already created... continuing"
 else
-	echoq -n "Creating the container"
-	if ! $dry_run; then
-		true
-		azure storage container create "$container_name"
-		echoq -e "... created"
-	else
-		echoq -e "... (dry run)"
-	fi
+    echoq -n "Creating the container"
+    if ! $dry_run; then
+
+        if $debug; then
+            azure storage container create "$container_name"
+        else
+            azure storage container create "$container_name" >> "${logfile}"
+        fi
+        echoq -e "... created"
+    else
+        echoq -e "... (dry run)"
+    fi
 fi
 
 echoq "Uploading the files..."
 
 uploaded_files=
 if $continue; then
-	# Read command output into array.
-	# See:
-	# http://askubuntu.com/questions/439026/
-	#     store-output-of-command-into-the-array
-	uploaded_files=($( \
-			sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${logfile}"  | \
-			grep -A5 "name" | \
-			grep -B5 "command OK$" | \
-			grep name | \
-			awk '{print $3}' ))
+    # Read command output into array.
+    # See:
+    # http://askubuntu.com/questions/439026/
+    #     store-output-of-command-into-the-array
+    uploaded_files=($( \
+            sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${logfile}"  | \
+            grep -A5 "name" | \
+            grep -B5 "command OK$" | \
+            grep name | \
+            awk '{print $3}' ))
 fi
 
 for filename in $dir*; do
- 	echoq -n "$filename "
+    echoq -n "$filename "
 
- 	fbasename=$(basename "$filename")
- 	if containsElement "$fbasename" "${uploaded_files[@]}"; then
- 		echoq -e "\t skipping (already uploaded)"
- 	else
- 		echoq -ne "\t ... "
+    fbasename=$(basename "$filename")
+    if containsElement "$fbasename" "${uploaded_files[@]}"; then
+        echoq -e "\t skipping (already uploaded)"
+    else
+        echoq -ne "\t ... "
 
- 		if ! $dry_run; then
- 			if $debug; then
-				azure storage blob upload "$filename" "$container_name"
-			else
-				azure storage blob upload "$filename" "$container_name" >> "upload.${container_name}.txt"
-			fi
- 			echoq "uploaded"
-		else
-			echoq "(dry run)"
-		fi
-	fi
+        if ! $dry_run; then
+            if $debug; then
+                azure storage blob upload "$filename" "$container_name"
+            else
+                azure storage blob upload "$filename" "$container_name" >> "${logfile}"
+            fi
+            echoq "uploaded"
+        else
+            echoq "(dry run)"
+        fi
+    fi
 done
 
 echoq "Done"

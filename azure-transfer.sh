@@ -27,6 +27,30 @@ EOF
 set -euo pipefail
 IFS=$'\n\t'
 
+# Dictionarues in bash
+# See:
+# https://stackoverflow.com/questions/1494178/
+#   how-to-define-hash-tables-in-bash
+declare -A continue_opts=( ["download"]='-c'
+                           ["compute_checksums"]='-c'
+                           ["download_move"]=''
+                           ["check_checksums"]=''
+                           ["upload"]='-c'
+                           ["check_upload"]=''
+                           ["move_upload"]=''
+                           ["remove_data"]=''
+                           )
+
+declare -A verbosity_opts=( ["download"]='-c'
+                          ["compute_checksums"]='-c'
+                          ["download_move"]=''
+                          ["check_checksums"]=''
+                          ["upload"]='-c'
+                          ["check_upload"]=''
+                          ["move_upload"]=''
+                          ["remove_data"]=''
+                          )
+
 containsElement () {
   local el
   for el in "${@:2}"; do [[ "$el" == "$1" ]] && return 0; done
@@ -62,6 +86,8 @@ for year in {2007..2015}; do
 
         echoq -ne "$year-$month "
 
+        completed_years=($( cat "${scriptdir}/completed.years.txt" ))
+
         if containsElement "$year-$month" "${completed_years[@]}"; then
             echoq -e "\t skipping (already done)"
             continue
@@ -85,6 +111,7 @@ for year in {2007..2015}; do
             cmd_name="$1"
             shift
 
+            local numargs="$#"
             local continue_opt=''
 
             if containsElement "$cmd_name.completed" "${transfer_log[@]}"; then
@@ -94,23 +121,34 @@ for year in {2007..2015}; do
 
             if containsElement "$cmd_name.start" "${transfer_log[@]}"; then
                 echoq -e "\t (continuing)"
+                continue_opt="${continue_opts[$cmd_name]}"
             else
                 write_log "$cmd_name.start"
             fi
-            
+
+            local cmd=()
+            for (( i=1; i<=numargs; i++ )); do
+                cmd+=("$1")
+                if [ "$i" -eq "2" ] && [ ! -z "$continue_opt" ]; then
+                    cmd+=("$continue_opt")
+                fi
+                shift
+            done
 
             if $debug; then
                 echo -ne "\n\t"
-                echo "$@"
+                echo "${cmd[@]}"
             fi
 
             if $dry_run; then
                 echoq "(dry run)"
             else
                 # "$@"
+                "${cmd[@]}"
                 if ! $debug; then echoq "done"; fi
             fi
             write_log "$cmd_name.completed"
+
         }
 
         echoq ''
@@ -118,13 +156,13 @@ for year in {2007..2015}; do
         echoq -ne "  * Download pagecounts \t\t ... "
         wrap_run "download" "${scriptdir}/scripts/download.sh" "$verbosity_opt" "$year" "$month"
 
-        exit 0
-
         echoq -ne "  * Compute checksums \t\t\t ... "
+        cd "${scriptdir}/data"
         wrap_run "compute_checksums" "${scriptdir}/data/checkme.sh" "$verbosity_opt" "$year-$month/"
+        cd "${scriptdir}"
 
         echoq -ne "  * Move download log to downloads dir \t ... "
-        wrap_run "download_move" "mv" "${scriptdir}/download.$year-$month.txt" "${scriptdir}/downloads/download.$year-$month.txt"
+        wrap_run "download_move" "mv" "${scriptdir}/download.${year}${month}.txt" "${scriptdir}/downloads/download.${year}${month}.txt"
 
         echoq -ne "  * Check checksums \t\t\t ... "
         wrap_run "check_checksums" "${scriptdir}/checksums/check_checksums.sh" "$verbosity_opt" "${scriptdir}/checksums/check/$year-$month/"
@@ -141,8 +179,8 @@ for year in {2007..2015}; do
         echoq -ne "  * Remove pagecounts \t\t\t ... "
         wrap_run "remove_data" "rm" "-r" "${scriptdir}/data/${year}-${month}/"
 
-        # rm "${scriptdir}/azure-transfer.${year}${month}.log"
-        # echo "${year}-${month}" >> "${scriptdir}/completed.years.txt"
+        rm "${scriptdir}/azure-transfer.${year}${month}.log"
+        echo "${year}-${month}" >> "${scriptdir}/completed.years.txt"
 
     done
 done
