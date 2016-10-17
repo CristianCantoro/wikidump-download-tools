@@ -1,0 +1,33 @@
+                                                                                                                                                              [DL:551KiB UL:0B][#9dd66f 0B/0B][#3a231c 0B/66MiB(0%)][#a4d267 32KiB/66MiB(0%)][#cc4de5 0B/0B][#087807 16KiB/66MiB(0%)](+7)
+10/10 23:36:45 [[1;31mERROR[0m] CUID#9 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-030000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-030000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#12 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-060000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-060000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#15 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-090000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-090000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#39 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-080001.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-080001.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#26 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-070000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-070000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#18 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-020000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-020000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#48 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-110000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-110000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+
+10/10 23:36:45 [[1;31mERROR[0m] CUID#44 - Download aborted. URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-100000.gz
+Exception: [AbstractCommand.cc:312] errorCode=29 URI=https://dumps.wikimedia.org/other/pagecounts-raw/2012/2012-05/pagecounts-20120501-100000.gz
+  -> [HttpSkipResponseCommand.cc:224] errorCode=29 The response status is not successful. status=503
+                                                                                                                                                              [DL:5.6MiB UL:0B][#9dd66f 352KiB/68MiB(0%)][#3a231c 896KiB/66MiB(1%)][#a4d267 672KiB/66MiB(0%)][#cc4de5 288KiB/65MiB(0%)][#087807 704KiB/66MiB(1%)](+7)                                                                                                                                                              [DL:7.3MiB UL:0B][#9dd66f 784KiB/68MiB(1%)][#3a231c 1.9MiB/66MiB(2%)][#a4d267 1.3MiB/66MiB(1%)][#cc4de5 0.9MiB/65MiB(1%)][#087807 1.4MiB/66MiB(2%)](+7)                                                                                                                                                              [DL:9.4MiB UL:0B][#9dd66f 1.2MiB/68MiB(1%)][#3a231c 3.3MiB/66MiB(5%)][#a4d267 2.4MiB/66MiB(3%)][#cc4de5 1.9MiB/65MiB(3%)][#087807 2.7MiB/66MiB(4%)](+7)                                                                                                                                                              [DL:12MiB UL:0B][#9dd66f 1.8MiB/68MiB(2%)][#3a231c 5.4MiB/66MiB(8%)][#a4d267 4.0MiB/66MiB(6%)][#cc4de5 3.3MiB/65MiB(5%)][#087807 4.7MiB/66MiB(7%)](+7)                                                                                                                                                              [DL:14MiB UL:0B][#9dd66f 2.4MiB/68MiB(3%)][#3a231c 8.2MiB/66MiB(12%)][#a4d267 5.5MiB/66MiB(8%)][#cc4de5 5.0MiB/65MiB(7%)][#087807 7.1MiB/66MiB(10%)](+7)                                                                                                                                                              [DL:16MiB UL:0B][#9dd66f 3.1MiB/68MiB(4%)][#3a231c 11MiB/66MiB(17%)][#a4d267 7.1MiB/66MiB(10%)][#cc4de5 7.8MiB/65MiB(11%)][#087807 10MiB/66MiB(16%)](+7)                                                                                                                                                              [DL:19MiB UL:0B][#9dd66f 3.8MiB/68MiB(5%)][#3a231c 16MiB/66MiB(24%)][#a4d267 8.8MiB/66MiB(13%)][#cc4de5 10MiB/65MiB(16%)][#087807 13MiB/66MiB(21%)](+7)                                                                                                                                                              [DL:20MiB UL:0B][#9dd66f 4.7MiB/68MiB(6%)][#3a231c 20MiB/66MiB(30%)][#a4d267 10MiB/66MiB(16%)][#cc4de5 13MiB/65MiB(20%)][#087807 17MiB/66MiB(25%)](+7)
