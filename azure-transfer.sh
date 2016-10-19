@@ -184,8 +184,16 @@ for year in {2007..2015}; do
         wrap_run "remove_data" "rm" "-r" "${scriptdir}/data/${year}-${month}/"
 
         echoq -ne "  * Finish up \t\t\t ... "
-        wrap_run "remove_transferlog" "rm" "${scriptdir}/azure-transfer.${year}${month}.log"
-        wrap_run "finish_year" "echo" "${year}-${month}" ">>" "${scriptdir}/completed.years.txt"
+        if ! $dry_run; then
+          rm "${scriptdir}/azure-transfer.${year}${month}.log"
+          echo "${year}-${month}" >> "${scriptdir}/completed.years.txt"
+
+          if $debug; then
+              echo -ne "\n\t rm ${scriptdir}/azure-transfer.${year}${month}.log"
+              echo -e  "\n\t echo ${year}-${month} >> ${scriptdir}/completed.years.txt"
+          fi
+
+        fi
 
     done
 done

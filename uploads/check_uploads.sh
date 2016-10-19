@@ -66,12 +66,12 @@ else
 fi
 
 num_script="0"
-if [ -f "${scriptdir}/${logfilename}" ]; then
-  num_script=$( sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${scriptdir}/${logfilename}" | \
+if [ -f "${logfile}" ]; then
+  num_script=$( sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${logfile}" | \
       grep -A5 "name.*pagecounts-.*.gz" | \
       grep -c "command OK$")
 else
-  (>&2 echoq "Error: ${scriptdir}/${logfilename} not found")
+  (>&2 echoq "Error: ${logfile} not found")
 fi
 
 if $debug; then
