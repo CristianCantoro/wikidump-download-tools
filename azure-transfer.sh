@@ -21,11 +21,26 @@ There is NO WARRANTY, to the extent permitted by law.
 EOF
 )"
 
+
 # bash strict mode
 # See:
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 IFS=$'\n\t'
+
+scriptpid=$$
+
+tmpdir='/tmp/azure-transfer.dir'
+lockfile="running.$scriptpid"
+
+mkdir -p "${tmpdir}"
+touch "${tmpdir}/$lockfile"
+
+function finish {
+  rm -f "${tmpdir}/$lockfile"
+  rm -f "${tmpdir}/$scriptpid."*".lock"
+}
+trap finish EXIT
 
 # Dictionarues in bash
 # See:
@@ -77,25 +92,36 @@ if $debug; then verbosity_opt='-d'; fi
 
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Read command output into array.
-# See:
-# http://askubuntu.com/questions/439026/
-#     store-output-of-command-into-the-array
-completed_years=($( cat "${scriptdir}/completed.years.txt" ))
-
-
 for year in {2007..2015}; do
     for month in {01..12}; do
         if [ "$year" -eq "2007" ] && [ "$month" -lt "12" ]; then continue; fi
 
         echoq -ne "$year-$month "
 
+        # Read command output into array.
+        # See:
+        # http://askubuntu.com/questions/439026/
+        #     store-output-of-command-into-the-array
         completed_years=($( cat "${scriptdir}/completed.years.txt" ))
+        processing_years=($( find "${tmpdir}" -name "*.${year}${month}.lock" -printf "%f\n" | \
+                             awk -F'.' '{print $2}' ))
 
-        if containsElement "$year-$month" "${completed_years[@]}"; then
+
+        if [ "${#completed_years[@]}" -gt 0 ] && \
+                containsElement "${year}-${month}" "${completed_years[@]}"; then
             echoq -e "\t skipping (already done)"
             continue
         fi
+
+        if [ "${#processing_years[@]}" -gt 0 ] && \
+                containsElement "${year}${month}" "${processing_years[@]}"; then
+            processing_pid=$(find "${tmpdir}" -name "*.${year}${month}.lock" -printf "%f\n" | \
+                             awk -F'.' '{print $1}')
+            echoq -e "\t skipping (being processed by PID $processing_pid)"
+            continue
+        fi
+
+        touch "${tmpdir}/$scriptpid.${year}${month}.lock"
 
         transfer_logfile="${scriptdir}/azure-transfer.${year}${month}.log"
         write_log () {
@@ -110,6 +136,9 @@ for year in {2007..2015}; do
         fi
 
         wrap_run () {
+
+            # echo ''
+            # return 0;
 
             local cmd_name
             cmd_name="$1"
@@ -183,18 +212,20 @@ for year in {2007..2015}; do
         echoq -ne "  * Remove pagecounts \t\t\t ... "
         wrap_run "remove_data" "rm" "-r" "${scriptdir}/data/${year}-${month}/"
 
-        echoq -ne "  * Finish up \t\t\t ... "
+        echoq -ne "  * Finish up \t\t\t\t ... "
+        rm "${scriptdir}/azure-transfer.${year}${month}.log"
+        rm "${tmpdir}/$scriptpid.${year}${month}.lock"
+
         if ! $dry_run; then
-          rm "${scriptdir}/azure-transfer.${year}${month}.log"
           echo "${year}-${month}" >> "${scriptdir}/completed.years.txt"
 
           if $debug; then
               echo -ne "\n\t rm ${scriptdir}/azure-transfer.${year}${month}.log"
               echo -e  "\n\t echo ${year}-${month} >> ${scriptdir}/completed.years.txt"
           fi
-
         fi
 
+        echo ''
     done
 done
 
