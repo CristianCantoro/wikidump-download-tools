@@ -47,7 +47,7 @@ trap finish EXIT
 # https://stackoverflow.com/questions/1494178/
 #   how-to-define-hash-tables-in-bash
 declare -A continue_opts=( ["download"]='-c'
-                           ["compute_checksums"]='-c'
+                           ["compute_checksums"]=''
                            ["download_move"]=''
                            ["check_checksums"]=''
                            ["upload"]='-c'
@@ -191,7 +191,7 @@ for year in {2007..2015}; do
 
         echoq -ne "  * Compute checksums \t\t\t ... "
         cd "${scriptdir}/data"
-        wrap_run "compute_checksums" "${scriptdir}/data/checkme.sh" "$verbosity_opt" "$year-$month/"
+        wrap_run "compute_checksums" "${scriptdir}/data/checkme.sh" "$verbosity_opt" "$year-$month"
         cd "${scriptdir}"
 
         echoq -ne "  * Move download log to downloads dir \t ... "

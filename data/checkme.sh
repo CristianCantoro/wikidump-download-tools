@@ -2,12 +2,14 @@
 
 workdir=''
 quiet=false
+debug=false
 
 eval "$(docopts -V - -h - : "$@" <<EOF
 Usage: checkme.sh [options] <workdir>
 
       <workdir>
-      -q, --quiet       Suppress output.
+      -d, --debug       Enable debug mode (incompatible with --quiet).
+      -q, --quiet       Suppress output (incompatible with --debug).
       -h, --help        Show this help message and exits.
       --version         Print version and copyright information.
 ----
@@ -31,6 +33,12 @@ progress_opt='--progress'
 if $quiet; then
     echoq() { true; }
     progress_opt=''
+fi
+
+if $quiet && $debug; then
+    (>&2 echo "Error: options --debug (-d) and --quiet (-q) are incompatible.")
+    (>&2 echo "See help (-h, --help) for more info")
+    exit 1
 fi
 
 workdirname="$(echo "$workdir" | tr -d '/')"
