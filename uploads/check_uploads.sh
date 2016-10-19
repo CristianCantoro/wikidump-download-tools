@@ -39,11 +39,13 @@ if $quiet; then
   echoq() { true; }
 fi
 
-year=$(echo $logfile | awk -F'.' '{print $2}' | cut -c 1-4 )
-month=$(echo $logfile | awk -F'.' '{print $2}' | cut -c 5-6 )
+logfilename=$(basename "${logfile}")
+year=$(echo "$logfilename" | awk -F'.' '{print $2}' | cut -c 1-4 )
+month=$(echo "$logfilename" | awk -F'.' '{print $2}' | cut -c 5-6 )
 
 if $debug; then
     echo -e "[DEBUG] logfile: \t $logfile"
+    echo -e "[DEBUG] logfilename: \t $logfilename"
     echo -e "[DEBUG] year: \t\t $year"
     echo -e "[DEBUG] month: \t\t $month"
 fi
@@ -56,18 +58,20 @@ if $debug; then
     echo -e "[DEBUG] checkdir: \t $checkdir"
 fi
 
+num_check="-1"
 if [ -f "${checkdir}/joblog" ]; then
   num_check=$(grep -c gz "${checkdir}/joblog")
 else
   (>&2 echoq "Error: ${checkdir}/joblog not found")
 fi
 
-if [ -f "${scriptdir}/${logfile}" ]; then
-  num_script=$( sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${scriptdir}/${logfile}" | \
+num_script="0"
+if [ -f "${scriptdir}/${logfilename}" ]; then
+  num_script=$( sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "${scriptdir}/${logfilename}" | \
       grep -A5 "name.*pagecounts-.*.gz" | \
       grep -c "command OK$")
 else
-  (>&2 echoq "Error: ${scriptdir}/${logfile} not found")
+  (>&2 echoq "Error: ${scriptdir}/${logfilename} not found")
 fi
 
 if $debug; then

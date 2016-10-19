@@ -39,6 +39,8 @@ declare -A continue_opts=( ["download"]='-c'
                            ["check_upload"]=''
                            ["move_upload"]=''
                            ["remove_data"]=''
+                           ["remove_transferlog"]=''
+                           ["finish_year"]=''
                            )
 
 declare -A verbosity_opts=( ["download"]='-c'
@@ -49,6 +51,8 @@ declare -A verbosity_opts=( ["download"]='-c'
                           ["check_upload"]=''
                           ["move_upload"]=''
                           ["remove_data"]=''
+                          ["remove_transferlog"]=''
+                          ["finish_year"]=''
                           )
 
 containsElement () {
@@ -174,13 +178,14 @@ for year in {2007..2015}; do
         wrap_run "check_upload" "${scriptdir}/uploads/check_uploads.sh" "$verbosity_opt" "${scriptdir}/upload.${year}${month}.txt"
 
         echoq -ne "  * Move upload log to uploads dir \t ... "
-        wrap_run "move_upload" "mv" "${scriptdir}/upload.$year-$month.txt" "${scriptdir}/uploads/upload.$year-$month.txt"
+        wrap_run "move_upload" "mv" "${scriptdir}/upload.${year}${month}.txt" "${scriptdir}/uploads/upload.${year}${month}.txt"
 
         echoq -ne "  * Remove pagecounts \t\t\t ... "
         wrap_run "remove_data" "rm" "-r" "${scriptdir}/data/${year}-${month}/"
 
-        rm "${scriptdir}/azure-transfer.${year}${month}.log"
-        echo "${year}-${month}" >> "${scriptdir}/completed.years.txt"
+        echoq -ne "  * Finish up \t\t\t ... "
+        wrap_run "remove_transferlog" "rm" "${scriptdir}/azure-transfer.${year}${month}.log"
+        wrap_run "finish_year" "echo" "${year}-${month}" ">>" "${scriptdir}/completed.years.txt"
 
     done
 done
