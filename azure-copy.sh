@@ -104,7 +104,7 @@ for filename in $dir*; do
 
         if ! $dry_run; then
             if $debug; then
-                azure storage blob upload "$filename" "$container_name"
+                azure storage blob upload "$filename" "$container_name" | tee -a "${logfile}"
             else
                 azure storage blob upload "$filename" "$container_name" >> "${logfile}"
             fi

@@ -29,7 +29,6 @@ IFS=$'\n\t'
 
 echoq() { echo "$@"; }
 progress_opt='--progress'
-
 if $quiet; then
     echoq() { true; }
     progress_opt=''
@@ -48,9 +47,18 @@ echoq "$workdirname";
 
 mkdir -p "${checkdir}/${workdirname}/"
 
-awk "{ printf \"%s ${workdirname}/%s\n\", \$1,\$2}" "${workdirname}/md5sums.txt" | \
+if $debug; then
+  awk "{ printf \"%s ${workdirname}/%s\n\", \$1,\$2}" "${workdirname}/md5sums.txt" | \
+      "$HOME/.linuxbrew/bin/parallel" \
+          --progress \
+          --joblog "${checkdir}/${workdirname}/joblog" \
+          --results "${checkdir}/${workdirname}/md5sums/" \
+          "echo {} | md5sum -c"
+else
+  awk "{ printf \"%s ${workdirname}/%s\n\", \$1,\$2}" "${workdirname}/md5sums.txt" | \
     "$HOME/.linuxbrew/bin/parallel" \
         $progress_opt \
         --joblog "${checkdir}/${workdirname}/joblog" \
         --results "${checkdir}/${workdirname}/md5sums/" \
-        "echo {} | md5sum -c"
+        "echo {} | md5sum -c" 1>/dev/null
+fi

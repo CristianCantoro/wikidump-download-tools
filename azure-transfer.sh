@@ -153,7 +153,7 @@ for year in {2007..2015}; do
             fi
 
             if containsElement "$cmd_name.start" "${transfer_log[@]}"; then
-                echoq -e "\t (continuing)"
+                echoq -en " (continuing) ... \t"
                 continue_opt="${continue_opts[$cmd_name]}"
             else
                 write_log "$cmd_name.start"
