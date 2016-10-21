@@ -109,7 +109,7 @@ for year in {2007..2015}; do
 
         if [ "${#completed_years[@]}" -gt 0 ] && \
                 containsElement "${year}-${month}" "${completed_years[@]}"; then
-            echoq -e "\t skipping (already done)"
+            echoq -e "\t skipping (completed)"
             continue
         fi
 
@@ -148,12 +148,12 @@ for year in {2007..2015}; do
             local continue_opt=''
 
             if containsElement "$cmd_name.completed" "${transfer_log[@]}"; then
-                echoq -e "\t skipping (already done)"
+                echoq -e "skipping (already done)"
                 return 0;
             fi
 
             if containsElement "$cmd_name.start" "${transfer_log[@]}"; then
-                echoq -en " (continuing) ... \t"
+                echoq -en "continuing ... "
                 continue_opt="${continue_opts[$cmd_name]}"
             else
                 write_log "$cmd_name.start"
@@ -223,9 +223,11 @@ for year in {2007..2015}; do
               echo -ne "\n\t rm ${scriptdir}/azure-transfer.${year}${month}.log"
               echo -e  "\n\t echo ${year}-${month} >> ${scriptdir}/completed.years.txt"
           fi
+            echo "done"
+        else
+            echo "(dry run)"
         fi
 
-        echo ''
     done
 done
 
