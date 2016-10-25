@@ -293,10 +293,6 @@ pagecounts-20150113-020000.gz, size 82M
 pagecounts-20150113-030000.gz, size 85M
 pagecounts-20150113-040000.gz, size 86M
 pagecounts-20150113-050000.gz, size 89M
-pagecounts-20150113-060000.gz, size 91M
-pagecounts-20150113-070000.gz, size 92M
-pagecounts-20150113-080000.gz, size 97M
-pagecounts-20150113-090000.gz, size 101M
 pagecounts-20150113-100000.gz, size 105M
 pagecounts-20150113-110000.gz, size 107M
 pagecounts-20150113-120000.gz, size 108M
