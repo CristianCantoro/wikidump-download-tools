@@ -28,6 +28,9 @@ EOF
 set -euo pipefail
 IFS=$'\n\t'
 
+YEAR_START=2007
+YEAR_END=2016
+
 scriptpid=$$
 
 tmpdir='/tmp/azure-transfer.dir'
@@ -92,9 +95,10 @@ if $debug; then verbosity_opt='-d'; fi
 
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-for year in {2007..2015}; do
+for year in $(seq "$YEAR_START" "$YEAR_END"); do
     for month in {01..12}; do
         if [ "$year" -eq "2007" ] && [ "$month" -lt "12" ]; then continue; fi
+        if [ "$year" -eq "2016" ] && [ "$month" -gt "08" ]; then continue; fi
 
         echoq -ne "$year-$month "
 
