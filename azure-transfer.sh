@@ -8,6 +8,8 @@ eval "$(docopts -V - -h - : "$@" <<EOF
 Usage: azure-transfer.sh [options]
 
     -d, --debug     Debug mode (incompatible with --quiet).
+    --date-start YEAR_START     Starting year [default: 2007-12].
+    --date-end YEAR_END         Starting year [default: 2016-12].
     -n, --dry-run   Do not upload files or create containers.
     -q, --quiet     Suppress output (incompatible with --debug).
     -h, --help      Show this help message and exits.
@@ -27,9 +29,6 @@ EOF
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 IFS=$'\n\t'
-
-YEAR_START=2007
-YEAR_END=2016
 
 scriptpid=$$
 
@@ -90,12 +89,49 @@ if $quiet && $debug; then
     exit 1
 fi
 
+if $debug; then
+    function echodebug() {
+        echo -n "[DEBUG] "
+        echo "$@"
+    }
+    echodebug "debugging enabled."
+
+    echodebug -e "date_start: \t $date_start"
+    echodebug -e "date_end: \t $date_end"
+fi
+
+year_start="$(echo "$date_start" | cut -c 1-4)"
+month_start="$(echo "$date_start" | cut -c 6-8)"
+year_end="$(echo "$date_end" | cut -c 1-4)"
+month_end="$(echo "$date_end" | cut -c 6-8)"
+
+if $debug; then
+    echodebug -e "year_start: \t $year_start"
+    echodebug -e "month_start: \t $month_start"
+    echodebug -e "year_end: \t $year_end"
+    echodebug -e "month_end: \t $month_end"
+fi
+
+startdate=$(date -d "${year_start}-${month_start}-01" +%s)
+enddate=$(date -d "${year_end}-${month_end}-01" +%s)
+
+if [ "$startdate" -ge "$enddate" ]; then
+    (>&2 echo "Error: end date must be greater than start date")
+fi
+
+function skip_years() {
+    if [ "$1" -le "$year_start" -a "$2" -lt "$month_start" ]; then return 0; fi
+    if [ "$1" -ge "$year_end" -a "$2" -gt "$month_end" ]; then return 0; fi
+
+    return 1
+}
+
 verbosity_opt='-q'
 if $debug; then verbosity_opt='-d'; fi
 
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-for year in $(seq "$YEAR_START" "$YEAR_END"); do
+for year in $(seq "$year_start" "$year_end"); do
     for month in {01..12}; do
         if [ "$year" -eq "2007" ] && [ "$month" -lt "12" ]; then continue; fi
         if [ "$year" -eq "2016" ] && [ "$month" -gt "08" ]; then continue; fi
