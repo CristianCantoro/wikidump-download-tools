@@ -1,84 +1,84 @@
 #!/usr/bin/env bash
 
 debug=false
-date_start=''
-date_end=''
-eval "$(docopts -V - -h - : "$@" <<EOF
-Usage: download_sizes.sh [options]
+dump_url=''
+ext=''
+filetype=''
 
-    -d, --debug                 Enable debug mode.
-    --date-start YEAR_START     Starting year [default: 2007-12].
-    --date-end YEAR_END         Starting year [default: 2016-12].
-    -h, --help                  Show this help message and exits.
-    --version                   Print version and copyright information.
+eval "$(docopts -V - -h - : "$@" <<EOF
+Usage: download_sizes.sh [options] <dump_url>
+       download_sizes.sh ( -h | --help )
+       download_sizes.sh --version
+
+Arguments:
+    <dump_url>                The wikidump base url
+                              e.g. https://dumps.wikimedia.org/enwiki/20180301/
+Options:
+    -d, --debug               Enable debug mode.
+    -f, --ext <ext>           Extension of the files to filter [default: .7z].
+    -t, --filetype <filetype> Type of files to filter
+                              [default: pages-meta-history].
+    -h, --help                Show this help message and exits.
+    --version                 Print version and copyright information.
 ----
-download_sizes.sh 0.1.0
-copyright (c) 2016 Cristian Consonni
+download_sizes.sh 0.2.0
+copyright (c) 2018 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 EOF
 )"
 
-set -euo pipefail
-IFS=$'\n\t'
+# shellcheck disable=SC2128
+SOURCED=false && [ "$0" = "$BASH_SOURCE" ] || SOURCED=true
 
-BASEURL="https://dumps.wikimedia.org/other/pagecounts-raw"
+if ! $SOURCED; then
+  set -euo pipefail
+  IFS=$'\n\t'
+fi
 
+#################### Utils
 if $debug; then
-    function echodebug() {
-        echo -n "[DEBUG] "
-        echo "$@"
-    }
-    echodebug "debugging enabled."
-
-    echodebug -e "date_start: \t $date_start"
-    echodebug -e "date_end: \t $date_end"
+  echodebug() {
+    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
+    echo "$@" 1>&2
+  }
+  echodebug "debugging enabled."
+else
+  echodebug() { true; }
 fi
+####################
 
-year_start="$(echo "$date_start" | cut -c 1-4)"
-month_start="$(echo "$date_start" | cut -c 6-8)"
-year_end="$(echo "$date_end" | cut -c 1-4)"
-month_end="$(echo "$date_end" | cut -c 6-8)"
+echodebug "dump_url: $dump_url"
+echodebug "Options:"
+echodebug "  * debug: $debug"
+echodebug "  * ext: $ext"
+echodebug "  * filetype: $filetype"
 
-if $debug; then
-    echodebug -e "year_start: \t $year_start"
-    echodebug -e "month_start: \t $month_start"
-    echodebug -e "year_end: \t $year_end"
-    echodebug -e "month_end: \t $month_end"
-fi
-
-startdate=$(date -d "${year_start}-${month_start}-01" +%s)
-enddate=$(date -d "${year_end}-${month_end}-01" +%s)
-
-if [ "$startdate" -ge "$enddate" ]; then
-    (>&2 echo "Error: end date must be greater than start date")
-fi
-
-function skip_years() {
-    if [ "$1" -le "$year_start" -a "$2" -lt "$month_start" ]; then return 0; fi
-    if [ "$1" -ge "$year_end" -a "$2" -gt "$month_end" ]; then return 0; fi
-
-    return 1
+# create a temporary drectory and set an exit trap to remove it
+tmpdir=$(mktemp -d -t tmp.XXXXXXXXXX)
+function finish {
+  rm -rf "$tmpdir"
 }
+trap finish EXIT
 
-year=''
-month=''
-url=''
-for year in $(seq "$year_start" "$year_end"); do
-    for month in {01..12}; do
-        if skip_years "$year" "$month"; then continue; fi
+dump_date="$(basename "$dump_url" | \
+            sed -re 's/([0-9]{4})([0-9]{2})([0-9]{2})/\1-\2-\3/g')"
 
-        url="$BASEURL/${year}/${year}-${month}/"
-        output="${year}-${month}.txt"
-        tmp_output="${output}.tmp"
+output="$dump_date.$filetype.txt"
+tmp_output="$tmpdir/${output}"
 
-            echo "wget -O ${tmp_output} $url"
-            wget -O "${tmp_output}" "$url"
+if $debug; then
+  set -x
+  wget -O "${tmp_output}.tmp" "$dump_url"
+  set +x
+else
+  wget -q -O "${tmp_output}.tmp" "$dump_url"
+fi
 
-         [ -f "${tmp_output}" ] && \
-                xidel --extract "//li" "${tmp_output}" > "${output}"
+sed -r 's#(</?ul>)#\n\1#g' "${tmp_output}.tmp" > "${tmp_output}.sed.tmp"
 
-        rm "${tmp_output}"
-    done
-done
+[ -f "${tmp_output}.sed.tmp" ] && \
+      xidel -s --extract "//li" "${tmp_output}.sed.tmp" | \
+      grep 'pages-meta-history' | \
+      grep '\.7z' > "${output}"
