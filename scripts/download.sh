@@ -4,24 +4,31 @@ continue=''
 debug=false
 quiet=false
 kill=''
-year=''
-month=''
+dowloadlist=''
+language='en'
+project='wiki'
 
 eval "$(docopts -V - -h - : "$@" <<EOF
-Usage: download.sh [options] <year> <month>
+Usage: download.sh [options] <dowloadlist>
        download.sh --kill
+       download.sh ( -h | --help )
+       download.sh --version
 
-      <year>               year to download (2007-2016)
-      <month>              month to download (01-12)
-      -c, --continue       Continue the previous download.
-      -d, --debug          Enable debug mode (incompatible with --quiet).
-      -k, --kill           Kill connection.
-      -q, --quiet          Suppress output (incompatible with --debug).
-      -h, --help           Show this help message and exits.
-      --version            Print version and copyright information.
+Arguments:
+  <dowloadlist>        Date to download (e.g. 2018-03-01)
+
+Options:
+  -c, --continue              Continue the previous download.
+  -d, --debug                 Enable debug mode (incompatible with --quiet).
+  -k, --kill                  Kill connection.
+  -l, --language <language>   Wikimedia project language [default: en].
+  -p, --project <project>     Wikimedia project name [default: wiki].
+  -q, --quiet                 Suppress output (incompatible with --debug).
+  -h, --help                  Show this help message and exits.
+  --version                   Print version and copyright information.
 ----
-download.sh 0.1.0
-copyright (c) 2016 Cristian Consonni
+download.sh 0.2.0
+copyright (c) 2018 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -29,24 +36,45 @@ EOF
 )"
 
 # bash strict mode
-# See:
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
-IFS=$'\n\t'
+# shellcheck disable=SC2128
+SOURCED=false && [ "$0" = "$BASH_SOURCE" ] || SOURCED=true
+
+if ! $SOURCED; then
+  set -euo pipefail
+  IFS=$'\n\t'
+fi
+
+#################### Utils
+if $debug; then
+  echodebug() {
+    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
+    echo "$@" 1>&2
+  }
+  echodebug "debugging enabled."
+else
+  echodebug() { true; }
+fi
+####################
 
 workdir='scripts'
 
-if $debug; then
-    echo -e "year: \t\t $year"
-    echo -e "month: \t\t $month"
- 
-    echo -e "continue: \t $continue"
-    echo -e "debug: \t\t $debug"
-    echo -e "kill: \t\t $kill"
-fi
+name="$(basename "$dowloadlist")"
+datestr="$(echo "$name"  | tr -d '.[:alpha:]')"
+year=$(echo "$datestr"  | awk -F'-' '{print $1}')
+month=$(echo "$datestr" | awk -F'-' '{print $2}')
+day=$(echo "$datestr"   | awk -F'-' '{print $3}')
 
+echodebug -e "year: \\t\\t $year"
+echodebug -e "month: \\t\\t $month"
+echodebug -e "day: \\t\\t\\t $day"
 
-# --debug implies --verbose
+echodebug "continue: $continue"
+echodebug "debug: $debug"
+echodebug "kill: $kill"
+echodebug "language: $language"
+echodebug "project: $project"
+
+# --debug implies not --quiet
 if $debug; then quiet=false; fi
 
 if $kill; then
@@ -63,38 +91,41 @@ hour=$(date "+%H")
 timeout_time=""
 max_overall_download_limit=""
 
-if [ "$hour" -gt "7" -a "$hour" -lt "18" ] ; then
+if [ "$hour" -gt "7" ] && [ "$hour" -lt "18" ] ; then
     timeout_time="8h"
-    max_overall_download_limit="6MB"
+    max_overall_download_limit="25MB"
 else
     timeout_time="10h"
-    max_overall_download_limit="50MB"
+    max_overall_download_limit="125MB"
 fi
 
 if $debug; then set +x; fi
 
+download_dir="data/${language}${project}/${year}${month}${day}/"
+mkdir -p "$download_dir"
+
 set +e
 if $quiet; then
-  unbuffer timeout -s TERM "$timeout_time" \
+  /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
-          --max-overall-upload-limit=50k \
+          --max-overall-upload-limit=5M \
           --file-allocation=none \
-          -d "data/${year}-${month}/" \
-          -i "downloadlists/${year}-${month}.txt" \
+          -d "$download_dir" \
+          -i "$dowloadlist" \
           $continue_opt \
-            > "download.${year}${month}.txt"
+            > "download.${language}${project}.${year}${month}${day}.log"
 
 else
-  unbuffer timeout -s TERM "$timeout_time" \
+  /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
           --max-overall-upload-limit=50k \
           --file-allocation=none \
-          -d "data/${year}-${month}/" \
-          -i "downloadlists/${year}-${month}.txt" \
+          -d "$download_dir" \
+          -i "$dowloadlist" \
           $continue_opt \
-            | tee "download.${year}${month}.txt"
+            | tee "download.${language}${project}.${year}${month}${day}.log"
 fi
