@@ -32,6 +32,13 @@ if ! $SOURCED; then
   IFS=$'\n\t'
 fi
 
+#### temp file
+tempfile=$(mktemp -t tmp.make_list.XXXXXXXXXX)
+function finish {
+  rm -rf "$tempfile"
+}
+trap finish EXIT
+
 #################### Utils
 if $debug; then
   echodebug() {
@@ -65,11 +72,10 @@ aproject="${language}${project}"
 echodebug "adate: $adate"
 echodebug "aproject: $aproject"
 
-rm -rf "$name"
-touch "$name"
+touch "$tempfile"
 awk '{print $1}' "$sizefile" | \
-  parallel -j4 ./list.sh "$aproject" "$adate" {} >> "$name"
+  parallel -j4 ./list.sh "$aproject" "$adate" {} >> "$tempfile"
 
-#sort -V "$name" | sponge "$name"
+sort -V "$tempfile" > "$name"
 
 exit 0

@@ -56,7 +56,7 @@ echodebug "  * ext: $ext"
 echodebug "  * filetype: $filetype"
 
 # create a temporary drectory and set an exit trap to remove it
-tmpdir=$(mktemp -d -t tmp.XXXXXXXXXX)
+tmpdir=$(mktemp -d -t tmp.download_sizes.XXXXXXXXXX)
 function finish {
   rm -rf "$tmpdir"
 }
@@ -81,4 +81,6 @@ sed -r 's#(</?ul>)#\n\1#g' "${tmp_output}.tmp" > "${tmp_output}.sed.tmp"
 [ -f "${tmp_output}.sed.tmp" ] && \
       xidel -s --extract "//li" "${tmp_output}.sed.tmp" | \
       grep 'pages-meta-history' | \
-      grep '\.7z' > "${output}"
+      grep '\.7z' | \
+      sort -V | \
+      uniq > "${output}"
