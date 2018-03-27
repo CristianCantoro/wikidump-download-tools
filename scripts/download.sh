@@ -4,12 +4,12 @@ continue=''
 debug=false
 quiet=false
 kill=''
-dowloadlist=''
+downloadlist=''
 language='en'
 project='wiki'
 
 eval "$(docopts -V - -h - : "$@" <<EOF
-Usage: download.sh [options] <dowloadlist>
+Usage: download.sh [options] <downloadlist>
        download.sh --kill
        download.sh ( -h | --help )
        download.sh --version
@@ -58,11 +58,14 @@ fi
 
 workdir='scripts'
 
-name="$(basename "$dowloadlist")"
+name="$(basename "$downloadlist")"
 datestr="$(echo "$name"  | tr -d '.[:alpha:]')"
 year=$(echo "$datestr"  | awk -F'-' '{print $1}')
 month=$(echo "$datestr" | awk -F'-' '{print $2}')
 day=$(echo "$datestr"   | awk -F'-' '{print $3}')
+
+aproject="$(basename "$downloadlist" | \
+            sed -re 's/.+\.(.+)\..+\.txt/\1/g')"
 
 echodebug -e "year: \\t\\t $year"
 echodebug -e "month: \\t\\t $month"
@@ -71,8 +74,7 @@ echodebug -e "day: \\t\\t\\t $day"
 echodebug "continue: $continue"
 echodebug "debug: $debug"
 echodebug "kill: $kill"
-echodebug "language: $language"
-echodebug "project: $project"
+echodebug "aproject: $aproject"
 
 # --debug implies not --quiet
 if $debug; then quiet=false; fi
@@ -113,9 +115,9 @@ if $quiet; then
           --max-overall-upload-limit=5M \
           --file-allocation=none \
           -d "$download_dir" \
-          -i "$dowloadlist" \
+          -i "$downloadlist" \
           $continue_opt \
-            > "download.${language}${project}.${year}${month}${day}.log"
+            > "download.${aproject}.${year}${month}${day}.log"
 
 else
   /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
@@ -125,7 +127,10 @@ else
           --max-overall-upload-limit=50k \
           --file-allocation=none \
           -d "$download_dir" \
-          -i "$dowloadlist" \
+          -i "$downloadlist" \
           $continue_opt \
-            | tee "download.${language}${project}.${year}${month}${day}.log"
+            | tee "download.${aproject}.${year}${month}${day}.log"
 fi
+
+exit 0
+
