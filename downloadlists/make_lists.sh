@@ -2,16 +2,12 @@
 
 sizefile=''
 debug=false
-language='en'
-project='wiki'
 
 eval "$(docopts -V - -h - : "$@" <<EOF
 Usage: make_lists.sh [options] <sizefile>
 
 Options:
   -d, --debug                 Enable debug mode.
-  -l, --language <language>   Wikimedia project language [default: en].
-  -p, --project <project>     Wikimedia project name [default: wiki].
   -h, --help                  Show this help message and exits.
   --version                   Print version and copyright information.
 
@@ -55,8 +51,6 @@ echodebug "Arguments:"
 echodebug "  * sizefile: $sizefile"
 echodebug "Options:"
 echodebug "  * debug: $debug"
-echodebug "  * language: $language"
-echodebug "  * project: $project"
 echodebug ''
 
 name="$(basename "$sizefile")"
@@ -67,7 +61,8 @@ day=$(echo "$datestr"   | awk -F'-' '{print $3}')
 
 
 adate="${year}${month}${day}"
-aproject="${language}${project}"
+aproject="$(basename "$sizefile" | \
+            sed -re 's/.+\.(.+)\..+\.txt/\1/g')"
 
 echodebug "adate: $adate"
 echodebug "aproject: $aproject"
