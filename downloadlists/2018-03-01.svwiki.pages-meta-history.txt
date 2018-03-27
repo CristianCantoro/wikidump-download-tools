@@ -1,0 +1,1 @@
+https://dumps.wikimedia.org/svwiki/20180301/svwiki-20180301-pages-meta-history.xml.7z	http://dumps.wikimedia.your.org/svwiki/20180301/svwiki-20180301-pages-meta-history.xml.7z
