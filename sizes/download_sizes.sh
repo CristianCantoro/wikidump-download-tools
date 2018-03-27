@@ -64,8 +64,10 @@ trap finish EXIT
 
 dump_date="$(basename "$dump_url" | \
             sed -re 's/([0-9]{4})([0-9]{2})([0-9]{2})/\1-\2-\3/g')"
+dump_projectname="$(echo "$dump_url" | \
+                    sed -re 's#https?://.+/(.+)/.+/?#\1#g')"
 
-output="$dump_date.$filetype.txt"
+output="$dump_date.$dump_projectname.$filetype.txt"
 tmp_output="$tmpdir/${output}"
 
 if $debug; then
@@ -81,6 +83,6 @@ sed -r 's#(</?ul>)#\n\1#g' "${tmp_output}.tmp" > "${tmp_output}.sed.tmp"
 [ -f "${tmp_output}.sed.tmp" ] && \
       xidel -s --extract "//li" "${tmp_output}.sed.tmp" | \
       grep 'pages-meta-history' | \
-      grep '\.7z' | \
+      grep "$ext" | \
       sort -V | \
       uniq > "${output}"
