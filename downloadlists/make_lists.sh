@@ -74,7 +74,7 @@ echodebug "aproject: $aproject"
 
 touch "$tempfile"
 awk '{print $1}' "$sizefile" | \
-  parallel -j4 ./list.sh "$aproject" "$adate" {} >> "$tempfile"
+  $HOME/.linuxbrew/bin/parallel -j4 ./list.sh "$aproject" "$adate" {} >> "$tempfile"
 
 sort -V "$tempfile" > "$name"
 
