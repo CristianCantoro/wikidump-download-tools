@@ -103,7 +103,7 @@ fi
 
 if $debug; then set +x; fi
 
-download_dir="data/${language}${project}/${year}${month}${day}/"
+download_dir="data/${aproject}/${year}${month}${day}/"
 mkdir -p "$download_dir"
 
 set +e
