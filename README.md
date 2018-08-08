@@ -1,12 +1,8 @@
-Scripts to download the Wikipedia pageviews
---------------------------------------------
+Scripts to download the Wikipedia dumps
+---------------------------------------
 
-These are a bunch of scripts that download the Wikipedia page views
-statistics available at [pagecounts-raw][pagecounts-raw].
-
-
+A bunch of scripts to download the Wikipedia dumps (available at
+[dumps][dumps]).
 
 
-
-
-[pagecounts-raw]: https://dumps.wikimedia.org/other/pagecounts-raw/
+[dumps]: https://dumps.wikimedia.org/dumps/
