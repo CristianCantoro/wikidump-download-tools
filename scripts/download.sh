@@ -5,7 +5,6 @@ debug=false
 quiet=false
 kill=''
 downloadlist=''
-language='en'
 project='wiki'
 
 eval "$(docopts -V - -h - : "$@" <<EOF
@@ -15,20 +14,19 @@ Usage: download.sh [options] <downloadlist>
        download.sh --version
 
 Arguments:
-  <dowloadlist>        Date to download (e.g. 2018-03-01)
+  <dowloadlist>               Date to download (e.g. 2018-03-01)
 
 Options:
   -c, --continue              Continue the previous download.
   -d, --debug                 Enable debug mode (incompatible with --quiet).
   -k, --kill                  Kill connection.
-  -l, --language <language>   Wikimedia project language [default: en].
   -p, --project <project>     Wikimedia project name [default: wiki].
   -q, --quiet                 Suppress output (incompatible with --debug).
   -h, --help                  Show this help message and exits.
   --version                   Print version and copyright information.
 ----
-download.sh 0.2.0
-copyright (c) 2018 Cristian Consonni
+download.sh 0.3.0
+copyright (c) 2021 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -47,7 +45,7 @@ fi
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
+    echo -en "[$(date '+%F %H:%M:%S')][debug]\\t"
     echo "$@" 1>&2
   }
   echodebug "debugging enabled."
