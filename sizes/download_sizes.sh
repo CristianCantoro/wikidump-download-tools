@@ -21,8 +21,8 @@ Options:
     -h, --help                Show this help message and exits.
     --version                 Print version and copyright information.
 ----
-download_sizes.sh 0.2.0
-copyright (c) 2018 Cristian Consonni
+download_sizes.sh 0.3.0
+copyright (c) 2020 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -40,7 +40,7 @@ fi
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
+    echo -en "[$(date '+%F %H:%M:%S')][debug]\\t"
     echo "$@" 1>&2
   }
   echodebug "debugging enabled."
@@ -86,3 +86,6 @@ sed -r 's#(</?ul>)#\n\1#g' "${tmp_output}.tmp" > "${tmp_output}.sed.tmp"
       grep "$ext" | \
       sort -V | \
       uniq > "${output}"
+
+exit 0
+
