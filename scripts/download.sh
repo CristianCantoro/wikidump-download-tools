@@ -104,6 +104,10 @@ if $debug; then set +x; fi
 download_dir="data/${aproject}/${year}${month}${day}/"
 mkdir -p "$download_dir"
 
+logfile="download" \
+        ".${aproject}-${year}${month}${day}" \
+        ".%(date "%D%M%Y%H%M%S").log"
+
 set +e
 if $quiet; then
   /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
@@ -115,8 +119,7 @@ if $quiet; then
           -d "$download_dir" \
           -i "$downloadlist" \
           $continue_opt \
-            > "download.${aproject}.${year}${month}${day}.log"
-
+            > "${logfile}"
 else
   /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
@@ -127,7 +130,8 @@ else
           -d "$download_dir" \
           -i "$downloadlist" \
           $continue_opt \
-            | tee "download.${aproject}.${year}${month}${day}.log"
+            | tee "${logfile}"
+
 fi
 
 exit 0
