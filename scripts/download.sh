@@ -110,7 +110,7 @@ logfile="download" \
 
 set +e
 if $quiet; then
-  /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
+  stdbuf -i0 -o0 -e0 /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
@@ -121,7 +121,7 @@ if $quiet; then
           $continue_opt \
             > "${logfile}"
 else
-  /usr/bin/unbuffer /usr/bin/timeout -s TERM "$timeout_time" \
+  stdbuf -i0 -o0 -e0 /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
