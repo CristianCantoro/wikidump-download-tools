@@ -42,6 +42,13 @@ if ! $SOURCED; then
   IFS=$'\n\t'
 fi
 
+rundir="/var/run/user/${UID}/wikidump-download"
+mkdir -pv "$rundir"
+function finish {
+  rm -rf "$rundir"
+}
+trap finish EXIT
+
 #################### Utils
 if $debug; then
   echodebug() {
@@ -54,7 +61,7 @@ else
 fi
 ####################
 
-workdir='scripts'
+
 
 name="$(basename "$downloadlist")"
 datestr="$(echo "$name"  | tr -d '.[:alpha:]')"
@@ -78,10 +85,13 @@ echodebug "aproject: $aproject"
 if $debug; then quiet=false; fi
 
 if $kill; then
-    if [ -f "${workdir}/download.pid" ]; then
-        kill -s TERM "$(cat ${workdir}/download.pid)"
-        rm "${workdir}/download.pid"
+    if [ -f "${rundir}/download.pid" ]; then
+      echodebug "Killing process $(cat ${rundir}/download.pid)"
+      kill -s TERM "$(cat ${rundir}/download.pid)"
+    else
+      echodebug "No process found, nothing to do."
     fi
+    exit 0
 fi
 
 continue_opt=''
@@ -104,13 +114,17 @@ if $debug; then set +x; fi
 download_dir="data/${aproject}/${year}${month}${day}/"
 mkdir -p "$download_dir"
 
-logfile="download" \
-        ".${aproject}-${year}${month}${day}" \
-        ".%(date "%D%M%Y%H%M%S").log"
+logfile="download"
+logfile+=".${aproject}-${year}${month}${day}" \
+logfile+=".$(date "+%Y-%d-%mT%H:%M:%S").log"
+
+echodebug "logfile: $logfile"
 
 set +e
-if $quiet; then
-  stdbuf -i0 -o0 -e0 /usr/bin/timeout -s TERM "$timeout_time" \
+
+function download_command {
+  (
+    stdbuf -i0 -o0 -e0 /usr/bin/timeout -s TERM "$timeout_time" \
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
@@ -119,19 +133,20 @@ if $quiet; then
           -d "$download_dir" \
           -i "$downloadlist" \
           $continue_opt \
-            > "${logfile}"
-else
-  stdbuf -i0 -o0 -e0 /usr/bin/timeout -s TERM "$timeout_time" \
-      aria2c \
-          -j 12 \
-          --max-overall-download-limit="$max_overall_download_limit" \
-          --max-overall-upload-limit=50k \
-          --file-allocation=none \
-          -d "$download_dir" \
-          -i "$downloadlist" \
-          $continue_opt \
-            | tee "${logfile}"
+          &
 
+    # How does a Linux/Unix Bash script know its own PID?
+    #   https://stackoverflow.com/a/2493659/2377454
+    # How to get PID from forked child process in shell script
+    #   https://stackoverflow.com/a/17356607/2377454
+    echo "$!" > "${rundir}/download.pid"    
+  )
+}
+
+if $quiet; then
+  download_command 2>&1 > "${logfile}"
+else
+  download_command 2>&1 | tee "${logfile}"
 fi
 
 exit 0
