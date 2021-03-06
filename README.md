@@ -3,15 +3,24 @@
 Some scripts to download the Wikipedia dumps (available at
 [dumps][dumps]).
 
+## Usage
+
+```bash
+./scripts/wikidump-download.sh https://dumps.wikimedia.org/eswiki/20210201/
+```
+
+Results are in the folder `data/eswiki/20210201`.
+
 ## Overview
+
+This is what `wikidump-download.sh` does. For example,to download the
+`pages-meta-history` dump for Spanish wikipedia (`eswiki`) made on `2021-02-01`,
+which is available at
+[https://dumps.wikimedia.org/eswiki/20210201/](https://dumps.wikimedia.org/eswiki/20210201/).
 
 ### 1. download size files for a given dump
 
-For example, the `pages-meta-history` dump for Spanish wikipedia (`eswiki`)
-made on `2021-02-01` is available at
-[https://dumps.wikimedia.org/eswiki/20210201/](https://dumps.wikimedia.org/eswiki/20210201/).
-
-Thus, to download sizes we execute the following command:
+To download sizes we execute the following command:
 
 ```bash
 ./sizes/download_sizes.sh https://dumps.wikimedia.org/eswiki/20210201/
@@ -62,7 +71,7 @@ data/eswiki/20210201/eswiki-20210201-pages-meta-history1.xml-p4658p6270.7z
 data/eswiki/20210201/eswiki-20210201-pages-meta-history1.xml-p6271p8248.7z
 ```
 
-## Usage
+## Documentation for each script
 
 ### sizes/download_sizes.sh
 
