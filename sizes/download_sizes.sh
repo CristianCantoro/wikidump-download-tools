@@ -37,11 +37,13 @@ if ! $SOURCED; then
   IFS=$'\n\t'
 fi
 
+# script base directory
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F %H:%M:%S')][debug]\\t"
-    echo "$@" 1>&2
+    (>&2 echo "[$(date '+%F %H:%M:%S')][debug] $@" )
   }
   echodebug "debugging enabled."
 else
@@ -67,8 +69,10 @@ dump_date="$(basename "$dump_url" | \
 dump_projectname="$(echo "$dump_url" | \
                     sed -re 's#https?://.+/(.+)/.+/?#\1#g')"
 
-output="$dump_date.$dump_projectname.$filetype.txt"
-tmp_output="$tmpdir/${output}"
+outname="sizes.$dump_date.$dump_projectname.$filetype.txt"
+
+output="${SCRIPTDIR}/${outname}"
+tmp_output="${tmpdir}/${outname}"
 
 if $debug; then
   set -x
@@ -87,5 +91,6 @@ sed -r 's#(</?ul>)#\n\1#g' "${tmp_output}.tmp" > "${tmp_output}.sed.tmp"
       sort -V | \
       uniq > "${output}"
 
-exit 0
+echo "-> ${outname}"
 
+exit 0

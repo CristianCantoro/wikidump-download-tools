@@ -12,8 +12,8 @@ Options:
   --version                   Print version and copyright information.
 
 ----
-make_lists.sh 0.2.0
-copyright (c) 2018 Cristian Consonni
+make_lists.sh 0.3.0
+copyright (c) 2021 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -28,6 +28,9 @@ if ! $SOURCED; then
   IFS=$'\n\t'
 fi
 
+# script base directory
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 #### temp file
 tempfile=$(mktemp -t tmp.make_list.XXXXXXXXXX)
 function finish {
@@ -38,8 +41,7 @@ trap finish EXIT
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
-    echo "$@" 1>&2
+    (>&2 echo "[$(date '+%F %H:%M:%S')][debug] $@" )
   }
   echodebug "debugging enabled."
 else
@@ -53,8 +55,10 @@ echodebug "Options:"
 echodebug "  * debug: $debug"
 echodebug ''
 
-name="$(basename "$sizefile")"
-datestr="$(echo "$name"  | tr -d '.[:alpha:]')"
+outname="downloadlists.$(basename "$sizefile")"
+output="${SCRIPTDIR}/${outname}"
+
+datestr="$(echo "$outname"  | tr -d '.[:alpha:]')"
 year=$(echo "$datestr"  | awk -F'-' '{print $1}')
 month=$(echo "$datestr" | awk -F'-' '{print $2}')
 day=$(echo "$datestr"   | awk -F'-' '{print $3}')
@@ -69,8 +73,10 @@ echodebug "aproject: $aproject"
 
 touch "$tempfile"
 awk '{print $1}' "$sizefile" | \
-  $HOME/.linuxbrew/bin/parallel -j4 ./list.sh "$aproject" "$adate" {} >> "$tempfile"
+  parallel -j4 "${SCRIPTDIR}"/list.sh "$aproject" "$adate" {} >> "$tempfile"
 
-sort -V "$tempfile" > "$name"
+sort -V "$tempfile" > "$output"
+
+echo "-> ${outname}"
 
 exit 0

@@ -20,7 +20,6 @@ Options:
   -c, --continue              Continue the previous download.
   -d, --debug                 Enable debug mode (incompatible with --quiet).
   -k, --kill                  Kill connection.
-  -p, --project <project>     Wikimedia project name [default: wiki].
   -q, --quiet                 Suppress output (incompatible with --debug).
   -h, --help                  Show this help message and exits.
   --version                   Print version and copyright information.
@@ -52,16 +51,13 @@ trap finish EXIT
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F %H:%M:%S')][debug]\\t"
-    echo "$@" 1>&2
+    (>&2 echo "[$(date '+%F %H:%M:%S')][debug] $@" )
   }
   echodebug "debugging enabled."
 else
   echodebug() { true; }
 fi
 ####################
-
-
 
 name="$(basename "$downloadlist")"
 datestr="$(echo "$name"  | tr -d '.[:alpha:]')"
@@ -72,10 +68,9 @@ day=$(echo "$datestr"   | awk -F'-' '{print $3}')
 aproject="$(basename "$downloadlist" | \
             sed -re 's/.+\.(.+)\..+\.txt/\1/g')"
 
-echodebug -e "year: \\t\\t $year"
-echodebug -e "month: \\t\\t $month"
-echodebug -e "day: \\t\\t\\t $day"
-
+echodebug "year: $year"
+echodebug "month: $month"
+echodebug "day: $day"
 echodebug "continue: $continue"
 echodebug "debug: $debug"
 echodebug "kill: $kill"
@@ -128,7 +123,7 @@ function download_command {
       aria2c \
           -j 12 \
           --max-overall-download-limit="$max_overall_download_limit" \
-          --max-overall-upload-limit=5M \
+          --max-overall-upload-limit=500k \
           --file-allocation=none \
           -d "$download_dir" \
           -i "$downloadlist" \
@@ -150,4 +145,3 @@ else
 fi
 
 exit 0
-
