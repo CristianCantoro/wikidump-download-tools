@@ -71,6 +71,9 @@ if $kill; then
   exit 0
 fi
 
+# 2021-03-06
+#   * FIXME: pass optional arguments to each command below.
+
 # 1. download size files for a given dump
 #    $ ./sizes/download_sizes.sh \
 #          https://dumps.wikimedia.org/eswiki/20210201/
