@@ -1,1 +1,0 @@
-https://dumps.wikimedia.org/cawiki/20210201/cawiki-20210201-pages-meta-history.xml.7z	http://dumps.wikimedia.your.org/cawiki/20210201/cawiki-20210201-pages-meta-history.xml.7z
