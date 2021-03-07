@@ -1,1 +1,3 @@
-download.*.txt
+# ignore download files
+download.*.txt*
+download.*.log
