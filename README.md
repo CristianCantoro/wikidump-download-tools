@@ -125,11 +125,22 @@ Options:
 
 ## Dependencies
 
+This script requires Bash version 4.
+
 The following software are needed to run the wikidump-download scripts:
 
 * realpath
-* docopts
-* parallel
-* xidel
+* [aria2][aria2]: a powerful command line downloader
+* [docopts][docopts]: a command-line interface tool for the shell
+* [GNU parallel][parallel]: GNU parallel is a shell tool for executing jobs
+  in parallel
+* [xidel][xidel]: Command line tool to download and extract data from
+  HTML/XML pages
+
+  Tipically, you can find `realpath` and `parallel` packaged in your distro.
 
 [dumps]: https://dumps.wikimedia.org/dumps/
+[aria2]: https://aria2.github.io/
+[docopts]: https://github.com/docopt/docopts
+[parallel]: https://www.gnu.org/software/parallel/
+[xidel]: https://github.com/benibela/xidel/
