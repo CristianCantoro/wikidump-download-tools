@@ -7,9 +7,10 @@ eval "$(docopts -V - -h - : "$@" <<EOF
 Usage: make_lists.sh [options] <sizefile>
 
 Options:
-  -d, --debug                 Enable debug mode.
-  -h, --help                  Show this help message and exits.
-  --version                   Print version and copyright information.
+  -d, --debug                         Enable debug mode.
+  -h, --help                          Show this help message and exits.
+  -p, --parallel-bin PARALLEL_BIN     Parallel executable [default: /usr/local/bin/parallel].
+  --version                           Print version and copyright information.
 
 ----
 make_lists.sh 0.3.0
@@ -70,10 +71,11 @@ aproject="$(basename "$sizefile" | \
 
 echodebug "adate: $adate"
 echodebug "aproject: $aproject"
+echodebug "parallel_bin: ${parallel_bin}"
 
 touch "$tempfile"
 awk '{print $1}' "$sizefile" | \
-  parallel -j4 "${SCRIPTDIR}"/list.sh "$aproject" "$adate" {} >> "$tempfile"
+  ${parallel_bin} -j4 "${SCRIPTDIR}"/list.sh "$aproject" "$adate" {} >> "$tempfile"
 
 sort -V "$tempfile" > "$output"
 
