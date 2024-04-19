@@ -27,8 +27,8 @@ Example:
 wikidump-download.sh https://dumps.wikimedia.org/enwiki/20210201/
 
 ----
-wikidump-download.sh 0.3.0
-copyright (c) 2021 Cristian Consonni
+wikidump-download.sh 0.4.0
+copyright (c) 2024 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
